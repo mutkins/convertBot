@@ -52,6 +52,18 @@ async def return_converted_file(message: types.Message, state: FSMContext):
         await message.answer_document(file)
 
 
+async def taking_file(message: types.Message, state: FSMContext):
+    a = message.content_type
+    if message.content_type == 'document':
+        await ask_format(message, state)
+    else:
+        await send_err_incorrect_frmt(message, state)
+
+
+async def send_err_incorrect_frmt(message: types.Message, state: FSMContext):
+    await message.answer('Пожалуйста, пришлите изображение как файл')
+
+
 # You can use state '*' if you need to handle all states
 # @dp.message_handler(state='*', commands='cancel')
 async def cancel_handler(message: types.Message, state: FSMContext):
@@ -68,7 +80,7 @@ async def cancel_handler(message: types.Message, state: FSMContext):
 def register_handlers(dp: Dispatcher):
     # A1 user sends /help or smthg like it
     dp.register_message_handler(send_welcome, commands=['start', 'help', 'хелп'])
-    dp.register_message_handler(ask_format, state=MyFSM.waiting_file, content_types=['document'])
+    dp.register_message_handler(taking_file, state=MyFSM.waiting_file, content_types='any')
     dp.register_message_handler(return_converted_file, state=MyFSM.waiting_format)
     dp.register_message_handler(cancel_handler, state='*', commands='отмена')
 
