@@ -11,7 +11,7 @@ from aiogram.types import ParseMode
 from aiogram.utils import executor
 from dotenv import load_dotenv
 from create_bot import dp
-from handlers import common
+from handlers import common, covnert
 
 # Configure logging
 logging.basicConfig(filename="main.log", level=logging.INFO, filemode="w",
@@ -21,6 +21,7 @@ log = logging.getLogger("main")
 
 # Register handlers from handlers folder
 common.register_handlers(dp)
+covnert.register_handlers(dp)
 
 
 if __name__ == '__main__':
