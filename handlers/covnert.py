@@ -27,7 +27,7 @@ class MyFSM(StatesGroup):
 
 
 async def asking_file(message: types.Message, state: FSMContext):
-    reset_state(state=state)
+    await reset_state(state=state)
     await message.answer("Отправьте файл для конвертации", parse_mode="HTML")
     await MyFSM.waiting_file.set()
 

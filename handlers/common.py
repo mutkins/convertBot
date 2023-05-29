@@ -4,7 +4,7 @@ from aiogram.dispatcher import FSMContext
 
 async def send_welcome(message: types.Message, state: FSMContext):
     # Reset state if it exists
-    reset_state(state=state)
+    await reset_state(state=state)
     await message.answer(text='Бот предназначен для конвертации файлов из одного формата в другой.\n'
                        'Пришлите /convert для начала')
 
