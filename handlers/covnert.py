@@ -13,14 +13,6 @@ from datetime import datetime
 from handlers.common import send_welcome, reset_state
 
 
-# Configure logging
-logging.basicConfig(filename="main.log", level=logging.INFO, filemode="w",
-                    format="%(asctime)s %(levelname)s %(message)s")
-log = logging.getLogger("main")
-input_temp_f = os.environ.get('input_temp')
-output_temp_f = os.environ.get('output_temp')
-
-
 class MyFSM(StatesGroup):
     waiting_file = State()
     waiting_format = State()

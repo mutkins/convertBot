@@ -16,7 +16,7 @@ imagick_path = os.environ.get('imagick_path')
 
 def do_convert(input_filepath, target_format):
     output_filepath = input_filepath.rsplit(sep=".", maxsplit=1)[0] + f".{target_format}"
-    result = subprocess.run(f"{imagick_path} {input_filepath} {output_filepath}", capture_output=True)
+    result = subprocess.run(f'{imagick_path} {input_filepath} {output_filepath}', capture_output=True)
     try:
         if result.stderr:
             raise ImagickException(message=result.stderr)

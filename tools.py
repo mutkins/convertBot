@@ -22,10 +22,15 @@ async def get_tg_file_path(bot, file_id) -> str:
 
 
 async def download_file(bot, file_id, file_name) -> str:
+    file_name = await replace_spaces(file_name)
     file_path = await get_tg_file_path(bot, file_id)
     destination = await get_lc_file_path(dest='input')
     lc_file_path = await bot.download_file(file_path=file_path, destination=destination + file_name)
     return lc_file_path.name
+
+
+async def replace_spaces(_: str):
+    return _.replace(' ', '_')
 
 
 class UploadFile:
