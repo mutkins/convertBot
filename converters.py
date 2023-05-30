@@ -25,3 +25,17 @@ def do_convert(input_filepath, target_format):
     except ImagickException as e:
         log.error(e)
         raise Exception(e)
+
+
+def do_convert_folder(folder_name, target_format):
+
+    # output_filepath = input_filepath.rsplit(sep=".", maxsplit=1)[0] + f".{target_format}"
+    result = subprocess.run(f'{imagick_path} mogrify -format {target_format} temp/{folder_name}/*.*', capture_output=True)
+    try:
+        if result.stderr:
+            raise ImagickException(message=result.stderr)
+        else:
+            return None
+    except ImagickException as e:
+        log.error(e)
+        raise Exception(e)
