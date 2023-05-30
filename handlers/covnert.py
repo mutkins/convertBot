@@ -5,7 +5,7 @@ import keyboards
 from create_bot import dp, bot
 import logging
 from converters import do_convert_folder
-from tools import download_file, UploadFile, get_filepaths_from_folder
+from tools import download_file, get_filepaths_from_folder, is_asked, mark_asked
 from datetime import datetime
 from handlers.common import send_welcome, reset_state
 
@@ -24,9 +24,8 @@ async def asking_file(message: types.Message, state: FSMContext):
 
 
 async def taking_file(message: types.Message, state: FSMContext):
-    print(f'{datetime.now()} пришел файл {message.document.file_name} media group id = {message.media_group_id}')
-
     if message.content_type == 'document':
+        print(f'{datetime.now()} пришел файл {message.document.file_name} media group id = {message.media_group_id}')
         await download_img(message, state)
     else:
         await send_err_incorrect_frmt(message, state)
@@ -37,7 +36,11 @@ async def download_img(message: types.Message, state: FSMContext):
         data['folder_name'] = await download_file(bot=bot, file_id=message.document.file_id,
                                                   file_name=message.document.file_name,
                                                   lc_filepath=message.media_group_id)
-    await ask_format(message, state)
+    if is_asked(folder_name=data['folder_name']):
+        pass
+    else:
+        mark_asked(folder_name=data['folder_name'])
+        await ask_format(message, state)
 
 
 async def ask_format(message: types.Message, state: FSMContext):
@@ -54,9 +57,10 @@ async def return_converted_file(message: types.Message, state: FSMContext):
             await message.answer(e)
             await send_welcome(message=message, state=state)
             raise Exception
-        for img in await get_filepaths_from_folder(folder_name=data['folder_name'], format=data['target_format']):
-            with UploadFile(img) as file:
-                await message.answer_document(file)
+        media = types.MediaGroup()
+        for img in await get_filepaths_from_folder(folder_name=data['folder_name'], file_format=data['target_format']):
+            media.attach_document(types.InputFile(img))
+    await message.answer_media_group(media=media)
     await state.finish()
 
 

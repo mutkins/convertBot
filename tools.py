@@ -33,13 +33,10 @@ async def get_filepaths_from_folder(folder_name, file_format):
     return glob.glob(f'temp\\{folder_name}\\*.{file_format}')
 
 
-class UploadFile:
-    def __init__(self, filename):
-        self.filname = filename
+def is_asked(folder_name):
+    return bool(glob.glob(f'temp\\{folder_name}\\_'))
 
-    def __enter__(self):
-        self.file = open(self.filname, 'rb')
-        return self.file
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.file.close()
+def mark_asked(folder_name):
+    with open(f'temp\\{folder_name}\\_', 'w') as f:
+        pass
