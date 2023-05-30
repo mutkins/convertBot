@@ -1,5 +1,8 @@
 from aiogram import Bot, Dispatcher, types
 from aiogram.dispatcher import FSMContext
+import logging
+
+log = logging.getLogger("main")
 
 
 async def send_welcome(message: types.Message, state: FSMContext):

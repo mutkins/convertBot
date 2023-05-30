@@ -1,16 +1,15 @@
-import os
-
 from aiogram import Bot, Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 import keyboards
 from create_bot import dp, bot
 import logging
-import io
-from converters import do_convert
-from tools import download_file, UploadFile
+from converters import do_convert_folder
+from tools import download_file, get_filepaths_from_folder, is_asked, mark_asked
 from datetime import datetime
 from handlers.common import send_welcome, reset_state
+
+log = logging.getLogger("main")
 
 
 class MyFSM(StatesGroup):
@@ -25,9 +24,8 @@ async def asking_file(message: types.Message, state: FSMContext):
 
 
 async def taking_file(message: types.Message, state: FSMContext):
-    # print(f'{datetime.now()} пришел файл {message.document.file_name}')
-
     if message.content_type == 'document':
+        print(f'{datetime.now()} пришел файл {message.document.file_name} media group id = {message.media_group_id}')
         await download_img(message, state)
     else:
         await send_err_incorrect_frmt(message, state)
@@ -35,9 +33,14 @@ async def taking_file(message: types.Message, state: FSMContext):
 
 async def download_img(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data['input_filepath'] = await download_file(bot=bot, file_id=message.document.file_id,
-                                                     file_name=message.document.file_name)
-    await ask_format(message, state)
+        data['folder_name'] = await download_file(bot=bot, file_id=message.document.file_id,
+                                                  file_name=message.document.file_name,
+                                                  lc_filepath=message.media_group_id)
+    if is_asked(folder_name=data['folder_name']):
+        pass
+    else:
+        mark_asked(folder_name=data['folder_name'])
+        await ask_format(message, state)
 
 
 async def ask_format(message: types.Message, state: FSMContext):
@@ -47,15 +50,18 @@ async def ask_format(message: types.Message, state: FSMContext):
 
 async def return_converted_file(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
+        data['target_format'] = message.text
         try:
-            output_filepath = do_convert(input_filepath=data['input_filepath'], target_format=message.text)
+            do_convert_folder(folder_name=data['folder_name'], target_format=data['target_format'])
         except Exception as e:
             await message.answer(e)
             await send_welcome(message=message, state=state)
             raise Exception
+        media = types.MediaGroup()
+        for img in await get_filepaths_from_folder(folder_name=data['folder_name'], file_format=data['target_format']):
+            media.attach_document(types.InputFile(img))
+    await message.answer_media_group(media=media)
     await state.finish()
-    with UploadFile(output_filepath) as file:
-        await message.answer_document(file)
 
 
 async def send_err_incorrect_frmt(message: types.Message, state: FSMContext):
