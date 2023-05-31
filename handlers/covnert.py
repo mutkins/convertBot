@@ -21,12 +21,14 @@ class MyFSM(StatesGroup):
 async def start_img(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['convert_type'] = 'img'
+    log.info(f"Conversation start, convert type = {data['convert_type']}")
     await asking_file(message=message, state=state)
 
 
 async def start_vid(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['convert_type'] = 'vid'
+    log.info(f"Conversation start, convert type = {data['convert_type']}")
     await asking_file(message=message, state=state)
 
 
@@ -39,16 +41,19 @@ async def asking_file(message: types.Message, state: FSMContext):
 async def taking_file(message: types.Message, state: FSMContext):
     if message.content_type == 'document':
         print(f'{datetime.now()} пришел файл {message.document.file_name} media group id = {message.media_group_id}')
+        log.info(f'User sent file {message.document.file_name} media group id = {message.media_group_id}')
         await download_img(message, state)
     else:
         await send_err_incorrect_frmt(message=message, state=state)
 
 
 async def download_img(message: types.Message, state: FSMContext):
+    log.info(f'Start downloading {message.document.file_name} media group id = {message.media_group_id}')
     async with state.proxy() as data:
         data['folder_name'] = await download_file(bot=bot, file_id=message.document.file_id,
                                                   file_name=message.document.file_name,
                                                   lc_filepath=message.media_group_id)
+        log.info(f'Downloaded file {message.document.file_name} media group id = {message.media_group_id}')
     if is_asked(folder_name=data['folder_name']):
         pass
     else:
@@ -57,7 +62,8 @@ async def download_img(message: types.Message, state: FSMContext):
 
 
 async def ask_format(message: types.Message, state: FSMContext):
-    await message.answer("Выберите целевой формат", reply_markup=keyboards.get_formats_kb())
+    async with state.proxy() as data:
+        await message.answer("Выберите целевой формат", reply_markup=keyboards.get_formats_kb(content_type=data['convert_type']))
     await MyFSM.waiting_format.set()
 
 
@@ -75,7 +81,9 @@ async def convert_image(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['target_format'] = message.text
         try:
+            log.info(f"START CONVERTING folder_name= {data['folder_name']}, target_format={data['target_format']}")
             await do_convert_folder(folder_name=data['folder_name'], target_format=data['target_format'])
+            log.info(f"SUCCESS CONVERTING folder_name= {data['folder_name']}, target_format={data['target_format']}")
         except Exception as e:
             await message.answer(e)
             await send_welcome(message=message, state=state)
@@ -87,7 +95,9 @@ async def convert_video(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['target_format'] = message.text
         try:
+            log.info(f"START CONVERTING folder_name= {data['folder_name']}, target_format={data['target_format']}")
             await do_convert_video_folder(folder_name=data['folder_name'], target_format=data['target_format'])
+            log.info(f"SUCCESS CONVERTING folder_name= {data['folder_name']}, target_format={data['target_format']}")
         except Exception as e:
             await message.answer(e)
             await send_welcome(message=message, state=state)

@@ -8,8 +8,7 @@ log = logging.getLogger("main")
 async def send_welcome(message: types.Message, state: FSMContext):
     # Reset state if it exists
     await reset_state(state=state)
-    await message.answer(text='Бот предназначен для конвертации файлов из одного формата в другой.\n'
-                       'Пришлите /convert для начала')
+    await message.answer(text='Бот предназначен для конвертации файлов из одного формата в другой.')
 
 
 async def reset_state(state: FSMContext):
