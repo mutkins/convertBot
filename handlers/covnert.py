@@ -1,3 +1,5 @@
+import time
+
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
@@ -9,7 +11,7 @@ from tools import download_file, get_filepaths_from_folder, is_asked, mark_asked
 from datetime import datetime
 from handlers.common import send_welcome, reset_state
 from video_converters import do_convert_video_folder
-
+import os
 log = logging.getLogger("main")
 
 
@@ -54,6 +56,7 @@ async def download_img(message: types.Message, state: FSMContext):
                                                   file_name=message.document.file_name,
                                                   lc_filepath=message.media_group_id)
         log.info(f'Downloaded file {message.document.file_name} media group id = {message.media_group_id}')
+        data['is_downloaded'] = True
     if is_asked(folder_name=data['folder_name']):
         pass
     else:
