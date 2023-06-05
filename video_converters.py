@@ -8,8 +8,11 @@ import asyncio
 from threading import Thread
 import time
 from datetime import datetime
+from aiogram import types
+
 log = logging.getLogger("main")
 load_dotenv()
+
 ffmpeg_path = os.environ.get('ffmpeg_path')
 
 
@@ -28,24 +31,35 @@ async def do_convert_video_folder_old(folder_name, target_format):
             raise Exception(e)
 
 
-async def do_convert_video_folder(folder_name, target_format):
+async def do_convert_video_folder(folder_name, target_format, message: types.Message):
     """This func convert all files target_format in folder_name and put new files in same folder"""
-    for source_file_path in await get_filepaths_from_folder(folder_name=folder_name, file_format='*'):
-        await do_convert_video_file(source_file_path=source_file_path, target_format=target_format)
+    file_num = 0
+    file_paths = await get_filepaths_from_folder(folder_name=folder_name, file_format='*')
+    files_total = len(file_paths)
+    for source_file_path in file_paths:
+        file_num += 1
+        await do_convert_video_file(source_file_path=source_file_path, target_format=target_format, message=message, file_num=file_num, files_total=files_total)
 
 
-async def do_convert_video_file(source_file_path, target_format):
+async def do_convert_video_file(source_file_path, target_format, message: types.Message, file_num, files_total):
     result_file_path = source_file_path.split(sep='.')[-2] + f'.{target_format}'
     a = datetime.now()
     print(f'Started at {a}')
     log.info(f'Started converting file {source_file_path} to {target_format}')
-    print('Work in progress', end='')
+    progress_text = f'Файл {file_num} из {files_total}'
+    print(progress_text, end='')
+    from handlers.covnert import send_progress_message
+    progress_msg = await send_progress_message(message=message, text='Work in progress')
     try:
         result = subprocess.Popen(f'echo y | ffmpeg -loglevel warning -i {source_file_path} {result_file_path}',
                                   shell=True, stderr=subprocess.PIPE, stdout=subprocess.DEVNULL, encoding='utf-8')
         while result.poll() is None:
+            progress_text += '.'
+            await send_progress_message(message=message, text=progress_text, progress_msg=progress_msg)
             print('.', end='')
             time.sleep(1)
+        progress_text += ' ГОТОВО'
+        await send_progress_message(message=message, text=progress_text, progress_msg=progress_msg)
         if result.returncode:
             err_msg = result.stderr.read()
             log.error(err_msg)

@@ -101,7 +101,7 @@ async def convert_video(message: types.Message, state: FSMContext):
         data['target_format'] = message.text
         try:
             log.info(f"START CONVERTING folder_name= {data['folder_name']}, target_format={data['target_format']}")
-            await do_convert_video_folder(folder_name=data['folder_name'], target_format=data['target_format'])
+            await do_convert_video_folder(folder_name=data['folder_name'], target_format=data['target_format'], message=message)
             log.info(f"SUCCESS CONVERTING folder_name= {data['folder_name']}, target_format={data['target_format']}")
         except Exception as e:
             await message.answer(e)
@@ -121,6 +121,14 @@ async def send_converted_file(message: types.Message, state: FSMContext):
 
 async def send_err_incorrect_frmt(message: types.Message, state: FSMContext):
     await message.answer('Пожалуйста, пришлите изображение как файл')
+
+
+async def send_progress_message(message: types.Message, text, progress_msg=None):
+    if progress_msg is None:
+        progress_msg = await message.answer(text)
+    else:
+        progress_msg = await progress_msg.edit_text(text)
+    return progress_msg
 
 
 def register_handlers(dp: Dispatcher):
