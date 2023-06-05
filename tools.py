@@ -27,7 +27,9 @@ async def download_file(bot, file_id, file_name, lc_filepath=None) -> str:
     """This func download file from tg server to the temporary folder on the local disk"""
     file_path = await get_tg_file_path(bot, file_id)
     destination = await get_lc_file_path(lc_filepath)
+    # .pydownload - postfix to mark downloading files
     await bot.download_file(file_path=file_path, destination=destination + file_name + '.pydownload')
+    # When download complete - remove .pydownload postfix
     await rename_aft_download(destination + file_name + '.pydownload')
     return destination.split(sep='\\')[-2]
 

@@ -1,5 +1,3 @@
-import time
-
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
@@ -11,7 +9,7 @@ from tools import download_file, get_filepaths_from_folder, is_asked, mark_asked
 from datetime import datetime
 from handlers.common import send_welcome, reset_state
 from video_converters import do_convert_video_folder
-import os
+
 log = logging.getLogger("main")
 
 
@@ -57,6 +55,9 @@ async def download_document(message: types.Message, state: FSMContext):
                                                   lc_filepath=message.media_group_id)
 
         log.info(f'Downloaded file {message.document.file_name} media group id = {message.media_group_id}')
+    # Check:
+    # 1. message 'ask_format' hasn't been sent yet,
+    # 2. There are no files .pydownload (downloading yet) in the folder
     if is_asked(folder_name=data['folder_name']) or await get_filepaths_from_folder(folder_name=data['folder_name'], file_format='pydownload'):
         pass
     else:
