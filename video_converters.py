@@ -31,30 +31,32 @@ async def do_convert_video_folder_old(folder_name, target_format):
 async def do_convert_video_folder(folder_name, target_format):
     """This func convert all files target_format in folder_name and put new files in same folder"""
     for source_file_path in await get_filepaths_from_folder(folder_name=folder_name, file_format='*'):
-        result_file_path = source_file_path.split(sep='.')[-2] + f'.{target_format}'
+        await do_convert_video_file(source_file_path=source_file_path, target_format=target_format)
 
-        a = datetime.now()
-        print(f'Started at {a}')
-        log.info(f'Started converting file {source_file_path} to {target_format}')
-        print('Work in progress', end='')
-        try:
-            result = subprocess.Popen(f'echo y | ffmpeg -loglevel warning -i {source_file_path} {result_file_path}',
+
+async def do_convert_video_file(source_file_path, target_format):
+    result_file_path = source_file_path.split(sep='.')[-2] + f'.{target_format}'
+    a = datetime.now()
+    print(f'Started at {a}')
+    log.info(f'Started converting file {source_file_path} to {target_format}')
+    print('Work in progress', end='')
+    try:
+        result = subprocess.Popen(f'echo y | ffmpeg -loglevel warning -i {source_file_path} {result_file_path}',
                                   shell=True, stderr=subprocess.PIPE, stdout=subprocess.DEVNULL, encoding='utf-8')
-            while result.poll() is None:
-                print('.', end='')
-                time.sleep(1)
-            if result.returncode:
-                err_msg = result.stderr.read()
-                log.error(err_msg)
-                raise ImagickException(message=err_msg)
-            else:
-                print(f'\nDone for {datetime.now() - a}.  Exited with returncode {result.returncode}')
-                log.info(f'Done for {datetime.now() - a}.  Exited with returncode {result.returncode}')
-        except ImagickException as e:
-            print(f"EXCEPTION_TEXT={e}")
-            log.error(e)
-            raise Exception(e)
-
+        while result.poll() is None:
+            print('.', end='')
+            time.sleep(1)
+        if result.returncode:
+            err_msg = result.stderr.read()
+            log.error(err_msg)
+            raise ImagickException(message=err_msg)
+        else:
+            print(f'\nDone for {datetime.now() - a}.  Exited with returncode {result.returncode}')
+            log.info(f'Done for {datetime.now() - a}.  Exited with returncode {result.returncode}')
+    except ImagickException as e:
+        print(f"EXCEPTION_TEXT={e}")
+        log.error(e)
+        raise Exception(e)
 
 
 
