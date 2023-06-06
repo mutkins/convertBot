@@ -58,13 +58,15 @@ async def do_convert_video_file(source_file_path, target_format, message: types.
             await send_progress_message(message=message, text=progress_text, progress_msg=progress_msg)
             print('.', end='')
             time.sleep(1)
-        progress_text += ' ГОТОВО'
-        await send_progress_message(message=message, text=progress_text, progress_msg=progress_msg)
         if result.returncode:
+            progress_text += ' ОШИБКА'
+            await send_progress_message(message=message, text=progress_text, progress_msg=progress_msg)
             err_msg = result.stderr.read()
             log.error(err_msg)
             raise ImagickException(message=err_msg)
         else:
+            progress_text += ' ГОТОВО'
+            await send_progress_message(message=message, text=progress_text, progress_msg=progress_msg)
             print(f'\nDone for {datetime.now() - a}.  Exited with returncode {result.returncode}')
             log.info(f'Done for {datetime.now() - a}.  Exited with returncode {result.returncode}')
     except ImagickException as e:
