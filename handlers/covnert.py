@@ -51,12 +51,18 @@ async def download_document(message: types.Message, state: FSMContext):
     log.info(f'Start downloading {message.document.file_name} media group id = {message.media_group_id}')
 
     async with state.proxy() as data:
-        data['folder_name'] = await download_file(bot=bot, file_id=message.document.file_id,
-                                                  file_name=message.document.file_name,
-                                                  lc_filepath=message.media_group_id)
+        try:
+            await message.answer(f"Скачиваю файл {message.document.file_name}")
+            data['folder_name'] = await download_file(bot=bot, file_id=message.document.file_id,
+                                                    file_name=message.document.file_name,
+                                                    lc_filepath=message.media_group_id)
 
-        log.info(f'Downloaded file {message.document.file_name} media group id = {message.media_group_id}')
-        await message.answer(f"Скачал файл {message.document.file_name}")
+            log.info(f'Downloaded file {message.document.file_name} media group id = {message.media_group_id}')
+
+        except Exception as e:
+            log.info(f'Error when downloading file {message.document.file_name} media group id = {message.media_group_id}')
+            await message.answer(e)
+            raise Exception
     # Check:
     # 1. message 'ask_format' hasn't been sent yet,
     # 2. There are no files .pydownload (downloading yet) in the folder
