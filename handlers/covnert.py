@@ -113,9 +113,14 @@ async def convert_video(message: types.Message, state: FSMContext):
 async def send_converted_file(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         media = types.MediaGroup()
-        for img in await get_filepaths_from_folder(folder_name=data['folder_name'], file_format=data['target_format']):
-            media.attach_document(types.InputFile(img))
-    await message.answer_media_group(media=media)
+        try:
+            for img in await get_filepaths_from_folder(folder_name=data['folder_name'], file_format=data['target_format']):
+                media.attach_document(types.InputFile(img))
+            await message.answer_media_group(media=media)
+        except Exception as e:
+            await message.answer(e)
+            await send_welcome(message=message, state=state)
+            raise Exception
     await state.finish()
 
 
