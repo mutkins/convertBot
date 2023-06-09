@@ -3,13 +3,13 @@ from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButt
 from settings import IMAGE_FORMATS, VIDEO_FORMATS
 
 
-def get_formats_kb(content_type):
+def get_formats_kb(convert_type):
     kb = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    if content_type == 'vid':
+    if convert_type == 'vid':
         for item in VIDEO_FORMATS:
             button = KeyboardButton(item)
             kb.add(button)
-    elif content_type == 'img':
+    elif convert_type == 'img':
         for item in IMAGE_FORMATS:
             button = KeyboardButton(item)
             kb.add(button)
