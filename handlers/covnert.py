@@ -68,8 +68,12 @@ async def download_document(message: types.Message, state: FSMContext):
 
 async def ask_format(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        log.info(f"SENDING Choose format message to user. Convert type = {data['convert_type']}")
-        await message.answer("Выберите целевой формат", reply_markup=keyboards.get_formats_kb(convert_type=data['convert_type']))
+        try:
+            log.info(f"SENDING Choose format message to user. Convert type = {data['convert_type']}")
+            await message.answer("Выберите целевой формат", reply_markup=keyboards.get_formats_kb(convert_type=data['convert_type']))
+        except Exception as e:
+            log.error(e)
+            await message.answer(e)
     await MyFSM.waiting_format.set()
 
 
