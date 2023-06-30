@@ -12,9 +12,8 @@ log = logging.getLogger("main")
 async def get_lc_file_path(lc_filepath=None):
     """This func generates local path for temporary files.
      If lc_filepath has given - use its name for folder, else use random (guid) name"""
-    return f"./temp/{lc_filepath}/" if lc_filepath else f"./temp/{uuid.uuid4()}/"
-    # return f".\\temp\\{lc_filepath}\\" if lc_filepath else f".\\temp\\{uuid.uuid4()}\\"
-    # return f".\\temp\\{lc_filepath}\\" if lc_filepath else f".\\temp\\{123}\\" #FOR TEST
+    return f"./temp/{lc_filepath}/" if lc_filepath else f"./temp/{uuid.uuid4()}/"  # FOR LINUX
+    # return f".\\temp\\{lc_filepath}\\" if lc_filepath else f".\\temp\\{uuid.uuid4()}\\" - for WINDOWS
 
 
 async def get_tg_file_path(bot, file_id) -> str:
@@ -32,8 +31,8 @@ async def download_file(bot, file_id, file_name, lc_filepath=None) -> str:
     await bot.download_file(file_path=file_path, destination=destination + file_name + '.pydownload')
     # When download complete - remove .pydownload postfix
     await rename_aft_download(destination + file_name + '.pydownload')
-    return destination.split(sep='\\')[-2]
-
+    # return destination.split(sep='\\')[-2]  FOR WINDOWS
+    return destination.split(sep='/')[-2]  # FOR LINUX
 
 async def rename_aft_download(file_path):
     os.rename(file_path, file_path.rsplit(sep='.', maxsplit=1)[0])
@@ -41,13 +40,16 @@ async def rename_aft_download(file_path):
 
 async def get_filepaths_from_folder(folder_name, file_format):
     """This func return list names of files specified format which exist in folder"""
-    return glob.glob(f'temp\\{folder_name}\\*.{file_format}')
+    # return glob.glob(f'temp\\{folder_name}\\*.{file_format}') FOR WINDOWS
+    return glob.glob(f'temp/{folder_name}/*.{file_format}')  # FOR LINUX
 
 
 def is_asked(folder_name):
-    return bool(glob.glob(f'temp\\{folder_name}\\_'))
+    # return bool(glob.glob(f'temp\\{folder_name}\\_'))  FOR WINDOWS
+    return bool(glob.glob(f'temp/{folder_name}/_'))  # FOR LINUX
 
 
 def mark_asked(folder_name):
-    with open(f'temp\\{folder_name}\\_', 'w') as f:
+    # with open(f'temp\\{folder_name}\\_', 'w') as f:  FOR WINDOWS
+    with open(f'temp/{folder_name}/_', 'w') as f:  # FOR LINUX
         pass
