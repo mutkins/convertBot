@@ -12,7 +12,8 @@ log = logging.getLogger("main")
 async def get_lc_file_path(lc_filepath=None):
     """This func generates local path for temporary files.
      If lc_filepath has given - use its name for folder, else use random (guid) name"""
-    return f".\\temp\\{lc_filepath}\\" if lc_filepath else f".\\temp\\{uuid.uuid4()}\\"
+    return f"./temp/{lc_filepath}/" if lc_filepath else f"./temp/{uuid.uuid4()}/"
+    # return f".\\temp\\{lc_filepath}\\" if lc_filepath else f".\\temp\\{uuid.uuid4()}\\"
     # return f".\\temp\\{lc_filepath}\\" if lc_filepath else f".\\temp\\{123}\\" #FOR TEST
 
 
