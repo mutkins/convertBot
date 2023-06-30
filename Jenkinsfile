@@ -8,6 +8,7 @@ pipeline {
     stages {
        stage('get dependencies'){
             steps {
+                sh 'sudo apt update'
                 sh 'sudo apt install imagemagick'
                 sh 'sudo python3 -m venv ./venv'
                 sh '. venv/bin/activate'
