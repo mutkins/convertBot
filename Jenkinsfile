@@ -4,7 +4,9 @@ pipeline {
        tgBot_id = credentials('convert_bot_id')
        CHAT_ID = credentials('my_chat_id')
     }
-
+    options {
+        retry(3) 
+    }
     stages {
        stage('get dependencies'){
             steps {
