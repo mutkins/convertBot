@@ -19,21 +19,22 @@ class MyFSM(StatesGroup):
 
 
 async def start_img(message: types.Message, state: FSMContext):
+    await reset_state(state=state)
     async with state.proxy() as data:
         data['convert_type'] = 'img'
-    log.info(f"Conversation start, convert type = {data['convert_type']}")
+        log.info(f"Conversation start, convert type = {data.get('convert_type')}")
     await asking_file(message=message, state=state)
 
 
 async def start_vid(message: types.Message, state: FSMContext):
+    await reset_state(state=state)
     async with state.proxy() as data:
         data['convert_type'] = 'vid'
-    log.info(f"Conversation start, convert type = {data['convert_type']}")
+        log.info(f"Conversation start, convert type = {data.get('convert_type')}")
     await asking_file(message=message, state=state)
 
 
 async def asking_file(message: types.Message, state: FSMContext):
-    await reset_state(state=state)
     await message.answer("Отправьте файл для конвертации", parse_mode="HTML")
     await MyFSM.waiting_file.set()
 
@@ -76,8 +77,8 @@ async def download_document(message: types.Message, state: FSMContext):
 async def ask_format(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         try:
-            log.info(f"SENDING Choose format message to user. Convert type = {data['convert_type']}")
-            await message.answer("Выберите целевой формат", reply_markup=keyboards.get_formats_kb(convert_type=data['convert_type']))
+            log.info(f"SENDING Choose format message to user. Convert type = {data.get('convert_type')}")
+            await message.answer("Выберите целевой формат", reply_markup=keyboards.get_formats_kb(convert_type=data.get('convert_type')))
         except Exception as e:
             log.error(e)
             await message.answer(e)
@@ -86,9 +87,9 @@ async def ask_format(message: types.Message, state: FSMContext):
 
 async def convert(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        if data['convert_type'] == 'img':
+        if data.get('convert_type') == 'img':
             await convert_image(message=message, state=state)
-        elif data['convert_type'] == 'vid':
+        elif data.get('convert_type') == 'vid':
             await convert_video(message=message, state=state)
         else:
             raise Exception
