@@ -14,7 +14,7 @@ async def do_convert_folder(folder_name, target_format):
     try:
         result = subprocess.run(f'mogrify -format {target_format} temp/{folder_name}/*.*',
                                 capture_output=True, shell=True)  # FOR LINUX
-        # result = subprocess.run(f'{imagick_path} mogrify -format {target_format} temp/{folder_name}/*.*', capture_output=True) - FOR WINDOWS
+        # result = subprocess.run(f'{imagick_path} mogrify -format {target_format} temp/{folder_name}/*.*', capture_output=True) # FOR WINDOWS
         if result.stderr:
             raise ImagickException(message=result.stderr)
         else:
