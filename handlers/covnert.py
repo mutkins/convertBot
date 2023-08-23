@@ -5,7 +5,7 @@ import keyboards
 from create_bot import bot
 import logging
 from img_converters import do_convert_folder
-from tools import download_file, get_filepaths_from_folder, is_asked, mark_asked
+from tools import download_file, get_filepaths_from_folder, is_asked, mark_asked, do_archive_files
 from datetime import datetime
 from handlers.common import send_welcome, reset_state
 from video_converters import do_convert_video_folder
@@ -35,7 +35,7 @@ async def start_vid(message: types.Message, state: FSMContext):
 
 
 async def asking_file(message: types.Message, state: FSMContext):
-    await message.answer("Отправьте файл для конвертации", parse_mode="HTML")
+    await message.answer("Отправьте файл для конвертации (не более 10 шт за раз)", parse_mode="HTML")
     await MyFSM.waiting_file.set()
 
 
@@ -125,10 +125,16 @@ async def convert_video(message: types.Message, state: FSMContext):
 
 async def send_converted_file(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        media = types.MediaGroup()
         try:
-            for img in await get_filepaths_from_folder(folder_name=data['folder_name'], file_format=data['target_format']):
-                media.attach_document(types.InputFile(img))
+            file_list = await get_filepaths_from_folder(folder_name=data['folder_name'], file_format=data['target_format'])
+            media = types.MediaGroup()
+            if len(file_list) <= 10:
+                for img in file_list:
+                    media.attach_document(types.InputFile(img))
+
+            else:
+                archive_path = do_archive_files(file_list=file_list, folder_name=data['folder_name'])
+                media.attach_document(types.InputFile(archive_path))
             await message.answer_media_group(media=media)
         except Exception as e:
             await message.answer(e)

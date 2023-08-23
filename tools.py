@@ -1,9 +1,11 @@
 import os
-
+import shutil
 from dotenv import load_dotenv
 import uuid
 import logging
 import glob
+from zipfile import ZipFile
+from os.path import basename
 
 load_dotenv()
 log = logging.getLogger("main")
@@ -34,6 +36,7 @@ async def download_file(bot, file_id, file_name, lc_filepath=None) -> str:
     # return destination.split(sep='\\')[-2]  FOR WINDOWS
     return destination.split(sep='/')[-2]  # FOR LINUX
 
+
 async def rename_aft_download(file_path):
     os.rename(file_path, file_path.rsplit(sep='.', maxsplit=1)[0])
 
@@ -53,3 +56,12 @@ def mark_asked(folder_name):
     # with open(f'temp\\{folder_name}\\_', 'w') as f:  FOR WINDOWS
     with open(f'temp/{folder_name}/_', 'w') as f:  # FOR LINUX
         pass
+
+
+def do_archive_files(file_list, folder_name):
+    zipfile_name = f'temp/{folder_name}/attachments.zip'
+    with ZipFile(zipfile_name, 'w') as zipObj:
+        # Add multiple files to the zip
+        for img in file_list:
+            zipObj.write(img, basename(img))
+    return zipfile_name
