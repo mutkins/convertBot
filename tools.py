@@ -65,3 +65,12 @@ def do_archive_files(file_list, folder_name):
         for img in file_list:
             zipObj.write(img, basename(img))
     return zipfile_name
+
+
+def mutate_message(message):
+    if getattr(message, 'document'):
+        setattr(message, 'content_id', message.document.file_id)
+        setattr(message, 'content_name', message.document.file_name)
+    elif getattr(message, 'video'):
+        setattr(message, 'content_id', message.video.file_id)
+        setattr(message, 'content_name', message.video.file_name)

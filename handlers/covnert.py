@@ -5,7 +5,7 @@ import keyboards
 from create_bot import bot
 import logging
 from img_converters import do_convert_folder
-from tools import download_file, get_filepaths_from_folder, is_asked, mark_asked, do_archive_files
+from tools import download_file, get_filepaths_from_folder, is_asked, mark_asked, do_archive_files, mutate_message
 from datetime import datetime
 from handlers.common import send_welcome, reset_state
 from video_converters import do_convert_video_folder
@@ -40,28 +40,29 @@ async def asking_file(message: types.Message, state: FSMContext):
 
 
 async def taking_file(message: types.Message, state: FSMContext):
-    if message.content_type == 'document':
-        print(f'{datetime.now()} пришел файл {message.document.file_name} media group id = {message.media_group_id}')
-        log.info(f'User sent file {message.document.file_name} media group id = {message.media_group_id}')
+    mutate_message(message)
+    if message.content_type == 'document' or message.content_type == 'video':
+        print(f'{datetime.now()} пришел файл {message.content_name} media group id = {message.media_group_id}')
+        log.info(f'User sent file {message.content_name} media group id = {message.media_group_id}')
         await download_document(message, state)
     else:
         await send_err_incorrect_frmt(message=message, state=state)
 
 
 async def download_document(message: types.Message, state: FSMContext):
-    log.info(f'Start downloading {message.document.file_name} media group id = {message.media_group_id}')
+    log.info(f'Start downloading {message.content_name} media group id = {message.media_group_id}')
 
     async with state.proxy() as data:
         try:
-            await message.answer(f"Скачиваю файл {message.document.file_name}")
-            data['folder_name'] = await download_file(bot=bot, file_id=message.document.file_id,
-                                                    file_name=message.document.file_name,
+            await message.answer(f"Скачиваю файл {message.content_name}")
+            data['folder_name'] = await download_file(bot=bot, file_id=message.content_id,
+                                                    file_name=message.content_name,
                                                     lc_filepath=message.media_group_id)
 
-            log.info(f'Downloaded file {message.document.file_name} media group id = {message.media_group_id}')
+            log.info(f'Downloaded file {message.content_name} media group id = {message.media_group_id}')
 
         except Exception as e:
-            log.info(f'Error when downloading file {message.document.file_name} media group id = {message.media_group_id}')
+            log.info(f'Error when downloading file {message.content_name} media group id = {message.media_group_id}')
             await message.answer(e)
             raise Exception
     # Check:
