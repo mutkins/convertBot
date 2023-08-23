@@ -10,7 +10,6 @@ pipeline {
     stages {
        stage('get dependencies'){
             steps {
-                sh 'sudo apt-get install ffmpeg -y'
                 sh 'python3 -m venv ./venv'
                 sh '. venv/bin/activate'
                 sh 'pip install -r requirements.txt'
