@@ -53,8 +53,8 @@ async def do_convert_file(convert_type, source_file_path, target_format, message
         elif convert_type == 'img':
             # result = subprocess.Popen(f'{imagick_path} convert {source_file_path} {result_file_path}', # windows
             #                           stderr=subprocess.PIPE, stdout=subprocess.DEVNULL)
-            result = subprocess.Popen(f'magick {source_file_path} {result_file_path}', # windows
-                                      stderr=subprocess.PIPE, stdout=subprocess.DEVNULL) # linux
+            result = subprocess.Popen(f'magick {source_file_path} {result_file_path}',
+                                      stderr=subprocess.PIPE, stdout=subprocess.DEVNULL)  # linux
         else:
             raise Exception
         while result.poll() is None:
