@@ -4,11 +4,11 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 import keyboards
 from create_bot import bot
 import logging
-from img_converters import do_convert_folder
 from tools import download_file, get_filepaths_from_folder, is_asked, mark_asked, do_archive_files, mutate_message
 from datetime import datetime
 from handlers.common import send_welcome, reset_state
-from video_converters import do_convert_video_folder
+from converter import do_convert_folder
+
 
 log = logging.getLogger("main")
 
@@ -101,7 +101,7 @@ async def convert_image(message: types.Message, state: FSMContext):
         data['target_format'] = message.text
         try:
             log.info(f"START CONVERTING folder_name= {data['folder_name']}, target_format={data['target_format']}")
-            await do_convert_folder(folder_name=data['folder_name'], target_format=data['target_format'])
+            await do_convert_folder(convert_type='img', folder_name=data['folder_name'], target_format=data['target_format'], message=message)
             log.info(f"SUCCESS CONVERTING folder_name= {data['folder_name']}, target_format={data['target_format']}")
         except Exception as e:
             await message.answer(e)
@@ -115,7 +115,8 @@ async def convert_video(message: types.Message, state: FSMContext):
         data['target_format'] = message.text
         try:
             log.info(f"START CONVERTING folder_name= {data['folder_name']}, target_format={data['target_format']}")
-            await do_convert_video_folder(folder_name=data['folder_name'], target_format=data['target_format'], message=message)
+
+            await do_convert_folder(convert_type='vid', folder_name=data['folder_name'], target_format=data['target_format'], message=message)
             log.info(f"SUCCESS CONVERTING folder_name= {data['folder_name']}, target_format={data['target_format']}")
         except Exception as e:
             await message.answer(e)
