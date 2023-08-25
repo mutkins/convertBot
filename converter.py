@@ -54,9 +54,10 @@ async def do_convert_file(convert_type, source_file_path, target_format, message
             # result = subprocess.Popen(f'{imagick_path} convert {source_file_path} {result_file_path}', # windows
             #                           stderr=subprocess.PIPE, stdout=subprocess.DEVNULL)
             log.info(f'!!!!!!!!')
-            log.info(f'convert {source_file_path} {result_file_path}')
-            result = subprocess.Popen(f'convert {source_file_path} {result_file_path}',
-                                      stderr=subprocess.PIPE, stdout=subprocess.DEVNULL)  # linux
+            log.info(f'mogrify -format {target_format} temp/e141e941-b737-41a2-bfb2-b76e3410b601/*.*')
+            # result = subprocess.Popen(f'convert {source_file_path} {result_file_path}',
+            #                           stderr=subprocess.PIPE, stdout=subprocess.DEVNULL)  # linux
+            result = subprocess.run(f'mogrify -format {target_format} temp/e141e941-b737-41a2-bfb2-b76e3410b601/*.*', capture_output=True, shell=True)
         else:
             raise Exception
         while result.poll() is None:
